@@ -2,6 +2,23 @@
 trigger analyzer based in multi-source information fusion
 
 
+## Modules
+
+- Dynamic grpah construction
+
+
+- Dynamic scoring
+
+
+- Multiple Detection Logics
+
+## Preparation
+’‘’
+# download bigquery key from google cloud
+export GOOGLE_APPLICATION_CREDENTIALS="path/to/your/service-account-file.json"
+‘’‘
+
+
 ## Usage Record
 
 - [Package-Analysis](https://github.com/ossf/package-analysis)
