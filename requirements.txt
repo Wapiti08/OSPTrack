@@ -1,3 +1,4 @@
 google-cloud-bigquery==3.25.0
 pandas==2.2.2
 db-dtypes==1.2.0
+tqdm==4.66.5
