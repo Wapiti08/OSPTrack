@@ -5,9 +5,17 @@
  attributesfrom csv or parquet
  ''' 
 
-from torch.geometric.data import HeteroData
+from torch_geometric.data import HeteroData, Data, TemporalData, InMemoryDataset
 
-def csv_graph_load(node_csv, edge_csv):
+def load_node_csv(node_csv):
+    
+
+
+def load_edge_csv(edge_csv):
+
+
+
+def static_graph_load(node_csv, edge_csv):
     ''' create hetergenous dataset from csv, the csv follows certain patterns
     node_csv: node, attr1, attr2, ...
     edge_csv: source, dest, attr1, attr2, ...
@@ -34,3 +42,4 @@ def csv_graph_load(node_csv, edge_csv):
     data["node_type_x"].attr1= 
 
 
+def temp_graph_load():
