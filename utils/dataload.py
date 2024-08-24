@@ -27,7 +27,6 @@ def conv_dict_cols(df, column):
     return df
 
 
-
 def graphml_csv(graph_path:str):
     G = nx.read_graphml(graph_path)
 
