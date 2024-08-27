@@ -3,6 +3,16 @@
  # @ Modified time: 2024-08-24 16:09:24
  # @ Description: match the malicious software from package-analysis 
  through malicious-packages until 8.27.2024
+
+the organization of analysis in package-analysis:
+
+    1. install 
+        Status, Stdout, Stderr, DNS, Types, Hostname, Types
+
+
+
+
+
  '''
 import pandas as pd
 import json
@@ -12,7 +22,6 @@ from pathlib import Path
 def load_json_file(json_file: Path) -> json:
     with json_file.open("r") as fr:
         return json.load(fr)
-
 
 def pkg_label_match(pkg_data_file, pkg_mal_file):
     ''' match the package with available labels
@@ -57,6 +66,7 @@ def feature_ext(pkg_data):
     ''' extract features from package-analysis dataset
     
     '''
+
     
 
 
@@ -81,4 +91,6 @@ def json_to_csv(mal_pkg_folder, save_path):
 if __name__ == "__main__":
     # define the mal_pkg_folder
     mal_pkg_folder = Path.cwd().parent.joinpath("data","malicious-packages","osv","malicious")
+    pkg_folder = Path.cwd().parent.joinpath("data","package-analysis.parquet")
+
     save_path = Path.cwd().parent.joinpath("data")
