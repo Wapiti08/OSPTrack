@@ -5,44 +5,19 @@
 
 the organization of analysis in package-analysis:
 
-    install: {
-        Status: string
-        Stdout: string
-        Stderr: string
-        DNS: [
-            {
-            Class: string
-            Queries: [
-                {
-                Hostname: string
-                Types: [string]
-                }
-            ]
-        }
-        ] 
-  Commands: [
-    {
-      Command: [string]
-      Environment: [string]
-    }
-  ]
-  Sockets: [
-    {
-      Hostnames: [string]
-      Port: integer
-      Address: string
-    }
-  ]
-  Files: [
-    {
-      Delete: boolean
-      Write: boolean
-      Read: boolean
-      Path: string
-    }
-  ]
-}
-
+ Index(['CreatedTimestamp', 'Package.Ecosystem', 'Package.Name',
+       'Package.Version', 'Analysis.execute.Commands', 'Analysis.execute.DNS',
+       'Analysis.execute.Files', 'Analysis.execute.Sockets',
+       'Analysis.execute.Status', 'Analysis.execute.Stderr',
+       'Analysis.execute.Stdout', 'Analysis.import.Commands',
+       'Analysis.import.DNS', 'Analysis.import.Files',
+       'Analysis.import.Sockets', 'Analysis.import.Status',
+       'Analysis.import.Stderr', 'Analysis.import.Stdout',
+       'Analysis.install.Commands', 'Analysis.install.DNS',
+       'Analysis.install.Files', 'Analysis.install.Sockets',
+       'Analysis.install.Status', 'Analysis.install.Stderr',
+       'Analysis.install.Stdout'],
+      dtype='object')
 
  '''
 
@@ -114,11 +89,11 @@ class Featurer:
     def extract_data(self, patterns, text):
         
         if isinstance(text, str):
-            self.string_match(patterns, text)
+            ana_dict = self.string_match(patterns, text)
 
         elif isinstance(text, dict):
-            print(json.dumps(text, indent=1, cls=CombinedEncoder))
-
+            # extract the features
+            pass
     
     def string_match(self, patterns, text):
         result = {}
@@ -156,8 +131,18 @@ class Featurer:
 if __name__ == "__main__":
     # define the pkg_folder
     pkg_folder = Path.cwd().parent.joinpath("data","package-analysis.parquet")
+    # df = pd.read_parquet(pkg_folder, engine='fastparquet')
+    
     df = pd.read_parquet(pkg_folder)
-    json_example = df["Analysis"][0]
+    print(df.columns)
+    print(df[df.columns[7:-3]])
+    # exam_pkg_folder = Path.cwd().parent.joinpath("data","package-analysis-500.parquet")
+    # exam_df = pd.read_parquet(pkg_folder)
+    # print(exam_df.columns)
+    print(len(df))
+    # print(df)
+    json_example = df['Analysis.import.Commands']
+    print(json_example)
     featurer_ext = Featurer()
     data = featurer_ext.extract_data(featurer_ext.patterns, json_example)
     print(data)

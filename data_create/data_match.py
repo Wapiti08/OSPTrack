@@ -4,15 +4,6 @@
  # @ Description: match the malicious software from package-analysis 
  through malicious-packages until 8.27.2024
 
-the organization of analysis in package-analysis:
-
-    1. install 
-        Status, Stdout, Stderr, DNS, Types, Hostname, Types
-
-
-
-
-
  '''
 import pandas as pd
 import json
