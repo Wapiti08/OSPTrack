@@ -10,30 +10,54 @@ from google.cloud import bigquery
 import os
 import pandas as pd
 from tqdm import tqdm
+import pyarrow.parquet as pq
+import pyarrow as pa
 
-# define the target directory
-data_path = Path.cwd().parent.joinpath("data")
+def inte_csv():
+    # define the target directory
+    data_path = Path.cwd().parent.joinpath("data")
 
-# fetch all filenames of chunks
-csv_files = data_path.glob("package-analysis-*.csv")
+    # fetch all csv of chunks
+    csv_files = data_path.glob("package-analysis-*.csv")
 
-# initialize a blank dataframe
-combined_df = pd.DataFrame()
+    # initialize a blank dataframe
+    combined_df = pd.DataFrame()
 
-# use universe column names
-columns = None
+    for file in csv_files:
+        df = pd.read_csv(file)
+        combined_df = pd.concat([combined_df, df])
 
-# traverse all csv files
-for file in csv_files:
-    df = pd.read_csv(file)
+    # reset index
+    combined_df.reset_index()
+
+    combined_df.to_csv(Path(data_path).joinpath("package-analysis.csv").as_posix(), index=False)
+
+
+def inte_parquets():
+    def flatten_df(df):
+        return pd.json_normalize(df.to_dict(orient='records'))
     
-    if columns is None:
-        columns = df.columns
+    # define the target directory
+    data_path = Path.cwd().parent.joinpath("data")
+    # fetch all parquet of chunks
+    parquet_files = data_path.glob("package-analysis-*.parquet")
+ 
+    dfs = []
 
-    combined_df = pd.concat([combined_df, df])
+    # Read each Parquet file and append its DataFrame to the list
+    for file in parquet_files:
+        df = pd.read_parquet(file)
+        df = flatten_df(df)
+        dfs.append(df)
 
-# reset index
-combined_df.reset_index(drop=True, inplace=True)
+    # Concatenate all DataFrames
+    combined_par_df = pd.concat(dfs, ignore_index=True)
 
-combined_df.to_csv(Path(data_path).joinpath("package-analysis.csv").as_posix(), index=False)
-combined_df.to_parquet(Path(data_path).joinpath("package-analysis.parquet").as_posix(), index=False)
+    # Optionally reset index if needed
+    combined_par_df.reset_index(drop=True, inplace=True)
+    
+    combined_par_df.to_parquet(Path(data_path).joinpath("package-analysis.parquet").as_posix(), index=False)
+
+if __name__=="__main__":
+    inte_csv()
+    inte_parquets()

@@ -12,6 +12,7 @@ trigger analyzer based in multi-source information fusion
 
 - Multiple Detection Logics
 
+
 ## Preparation
 ’‘’
 # download bigquery key from google cloud
@@ -57,3 +58,10 @@ export GOOGLE_APPLICATION_CREDENTIALS="path/to/your/service-account-file.json"
         - command --- as the string features? --- machine learning
         - features ---- give weights ---- part of risky score
         - 
+
+
+## Running Instructions
+'''
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+'''

@@ -6,3 +6,5 @@ torch==2.4.0
 torchvision==0.19.0
 torch_geometric==2.5.3
 sentence-transformers==3.0.1
+pyarrow==17.0.0
+dask==2024.8.1
