@@ -3,22 +3,6 @@
  # @ Modified time: 2024-08-27 16:04:56
  # @ Description:
 
-the organization of analysis in package-analysis:
-
- Index(['CreatedTimestamp', 'Package.Ecosystem', 'Package.Name',
-       'Package.Version', 'Analysis.execute.Commands', 'Analysis.execute.DNS',
-       'Analysis.execute.Files', 'Analysis.execute.Sockets',
-       'Analysis.execute.Status', 'Analysis.execute.Stderr',
-       'Analysis.execute.Stdout', 'Analysis.import.Commands',
-       'Analysis.import.DNS', 'Analysis.import.Files',
-       'Analysis.import.Sockets', 'Analysis.import.Status',
-       'Analysis.import.Stderr', 'Analysis.import.Stdout',
-       'Analysis.install.Commands', 'Analysis.install.DNS',
-       'Analysis.install.Files', 'Analysis.install.Sockets',
-       'Analysis.install.Status', 'Analysis.install.Stderr',
-       'Analysis.install.Stdout'],
-      dtype='object')
-
  '''
 
 import pandas as pd
@@ -50,82 +34,24 @@ class CombinedEncoder(BytesEncoder, NumpyEncoder):
 
 class Featurer:
     def __init__(self,):
-        # Define regex patterns
-        self.patterns = {
-            "install":{
-                "Status": r'"Status":\s*"([^"]*)"',
-                "Stdout": r'\s*b"([^"]*)"',
-                "Stderr": r'"Stderr":\s*"([^"]*)"',
-            },
-            "DNS": {
-                "Class": r'"Class":\s*"([^"]*)"',
-                "Queries": {
-                    "Hostname": r'"Hostname":\s*"([^"]*)"',
-                    "Types": r'"Types":\s*array\(\[([^\]]*)\],\s*dtype=object\)'
-                }
-            },
-            "Commands": {
-                "EntireStructure": r"""
-                    \{'Command':\s*(array\(\[.*?\],\s*dtype=object\)),  # Match the Command array
-                    \s*'Environment':\s*(array\(\[.*?\],\s*dtype=object\))  # Match the Environment array
-                    \}
-                """
-            },
-            "Sockets": {
-                "Hostnames": r'\s*array\(\[([^\]]*)\],\s*dtype=object\)',
-                "Port": r'"Port":\s*(\d+)',
-                "Address": r'"Address":\s*"([^"]*)"',
-            },
-            "Files": {
-                "Delete": r'"Delete":\s*(true|false)',
-                "Write": r'"Write":\s*(true|false)',
-                "Read": r'"Read":\s*(true|false)',
-                "Path": r'"Path":\s*"([^"]*)"'
-            }
-        }
-
+        pass
 
     # Extract data
-    def extract_data(self, patterns, text):
-        
-        if isinstance(text, str):
-            ana_dict = self.string_match(patterns, text)
-
-        elif isinstance(text, dict):
+    def extract_features(self, text):
+        print(text)
+        if isinstance(text, dict):
             # extract the features
             pass
     
-    def string_match(self, patterns, text):
-        result = {}
-        # replace the ' to " in text
-        text = text.replace("'", '"')
-        for key, pattern in patterns.items():
-            if isinstance(pattern, dict):
-                result[key] = self.extract_data(pattern, text)
-            else:
-                if key == "EntireStructure":
-                    # re.DOTALL makes '.' in the regex match newline characters, allowing the pattern to match multiple lines
-                    # re.VERBOSE allows the use of whitespace and comments inside the regex pattern
-                    match = re.findall(pattern, text, re.DOTALL | re.VERBOSE)
-                else:
-                    match = re.findall(pattern, text)
-
-                if match:
-                    if key == "EntireStructure":
-                        result[key] = [self.parse_command_env(m) for m in match]
-                    else:
-                        result[key] = match[0] if len(match) == 1 else match
-        return result
-
-    
-    def cmd_concat(self, match: re.Match):
-        ''' concat commands to one string
+    def cmd_concat(self,):
+        pass
         
-        '''
-        command_str, env_str = match
-        command_list = [item.strip().strip("'") for item in command_str.split(',')]
-        env_list = [item.strip().strip("'") for item in env_str.split(',')]
-        return {"Command": command_list, "Environment": env_list}
+    
+    def decode_bytes(self,):
+        pass
+
+    def ndarray_to_list(self,):
+        pass
 
 
 if __name__ == "__main__":
@@ -136,5 +62,5 @@ if __name__ == "__main__":
     df = pd.read_parquet(pkg_folder)
     json_example = df['Analysis'][0]
     featurer_ext = Featurer()
-    data = featurer_ext.extract_data(featurer_ext.patterns, json_example)
+    data = featurer_ext.extract_features(json_example)
     print(data)

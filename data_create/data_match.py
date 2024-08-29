@@ -8,13 +8,16 @@
 import pandas as pd
 import json
 from pathlib import Path
+from tqdm import tqdm
+import ast
+
 
 # define process for npm
 def load_json_file(json_file: Path) -> json:
     with json_file.open("r") as fr:
         return json.load(fr)
 
-def pkg_label_match(pkg_data_file, pkg_mal_file):
+def pkg_label_match(pkg_data_file, pkg_mal_file, save_path):
     ''' match the package with available labels
 
     param pkg_data: 
@@ -34,8 +37,10 @@ def pkg_label_match(pkg_data_file, pkg_mal_file):
     
     # get the package ecosystem, name --- string
     pkg_info_list = pkg_df["Package"].to_list() 
-    for index, pkg_info in enumerate(pkg_info_list, desc="matching labels", \
+
+    for index, pkg_info in tqdm(enumerate(pkg_info_list), desc="matching labels", \
                                      total=len(pkg_df)):
+        pkg_info = ast.literal_eval(pkg_info)
         ecosystem = pkg_info["Ecosystem"]
         version = pkg_info["Version"]
         name = pkg_info["Name"]
@@ -49,7 +54,8 @@ def pkg_label_match(pkg_data_file, pkg_mal_file):
         if not match.empty:
             # label this package as malicious label --- 1
             pkg_df["Label"][index] = 1
-    
+    pkg_df.to_csv(save_path.joinpath("package-analysis-labels.csv"))
+    print(pkg_df.Label.value_counts())
     return pkg_df
 
 
@@ -57,6 +63,7 @@ def feature_ext(pkg_data):
     ''' extract features from package-analysis dataset
     
     '''
+    pass
 
     
 
@@ -67,21 +74,36 @@ def json_to_csv(mal_pkg_folder, save_path):
     '''
     mal_dict_list = []
     for json_file in mal_pkg_folder.rglob("**/*.json"):
-        json_info = load_json_file(json_file)
-        affect_dict = json_info["affected"]
+        # bypass some directories names with .json
+        if json_file.is_file():
+            json_info = load_json_file(json_file)
+
+        affect_dict = json_info["affected"][0]
+        try:
+            version = affect_dict["versions"][0]
+        except:
+            # there is no version information for some ecosystem (npm)
+            version = ""
+
         mal_dict_list.append(
             {"ecosystem": affect_dict["package"]["ecosystem"],
              "name": affect_dict["package"]["name"],
-             "version": affect_dict["versions"][0]}
+             "version": version}
         )
 
     df = pd.DataFrame(mal_dict_list)
-    df.to_csv(save_path.joinpath("pkg_mal_csv"), index=False)
+    df.to_csv(save_path.joinpath("pkg_mal.csv"), index=False)
 
 
 if __name__ == "__main__":
     # define the mal_pkg_folder
     mal_pkg_folder = Path.cwd().parent.joinpath("data","malicious-packages","osv","malicious")
-    pkg_folder = Path.cwd().parent.joinpath("data","package-analysis.parquet")
+    pkg_par_file = Path.cwd().parent.joinpath("data","package-analysis.parquet")
 
+    # match labels
     save_path = Path.cwd().parent.joinpath("data")
+    # create malicious package csv
+    json_to_csv(mal_pkg_folder, save_path)
+    # match labels
+    pkg_mal_file = save_path.joinpath("pkg_mal.csv")
+    pkg_label_match(pkg_par_file, pkg_mal_file, save_path)

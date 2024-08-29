@@ -16,7 +16,8 @@ def inte_csv():
 
     # fetch all csv of chunks
     csv_files = data_path.glob("package-analysis-*.csv")
-
+    # optional
+    csv_files = [file for file in csv_files if file.stem.split('-')[-1].isdigit()]
     # initialize a blank dataframe
     combined_df = pd.DataFrame()
 
