@@ -129,20 +129,12 @@ class Featurer:
 
 
 if __name__ == "__main__":
+
     # define the pkg_folder
     pkg_folder = Path.cwd().parent.joinpath("data","package-analysis.parquet")
-    # df = pd.read_parquet(pkg_folder, engine='fastparquet')
     
     df = pd.read_parquet(pkg_folder)
-    print(df.columns)
-    print(df[df.columns[7:-3]])
-    # exam_pkg_folder = Path.cwd().parent.joinpath("data","package-analysis-500.parquet")
-    # exam_df = pd.read_parquet(pkg_folder)
-    # print(exam_df.columns)
-    print(len(df))
-    # print(df)
-    json_example = df['Analysis.import.Commands']
-    print(json_example)
+    json_example = df['Analysis'][0]
     featurer_ext = Featurer()
     data = featurer_ext.extract_data(featurer_ext.patterns, json_example)
     print(data)
