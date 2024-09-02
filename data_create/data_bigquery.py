@@ -36,34 +36,6 @@ def query_table(number, offset, data_path):
         # # process the results
         results = query_job.result()
 
-        # # print the result
-        # for row in results:
-        #     print(row)
-
-        # set the chunk size to avoid excess problem
-        # page_size = 10
-        # index = 0
-        # # Iterate through results in chunks of 100
-        # total_chunks = (number + page_size - 1) // page_size
-
-        # acc_rows = []
-
-        # for page in tqdm(query_job.result(page_size=page_size).pages, total=number,
-        #                  desc="saving results with chunks"):
-        #     # print(query_job.state)
-        #     # print(page)
-        #     rows = list([list(row) for row in page])
-        #     acc_rows.extend(rows)
-        #     if len(acc_rows) == 500:
-        #         chunk_df = pd.DataFrame(acc_rows, columns = ["Package","CreatedTimestamp","Analysis"])
-        #         index += 1
-        #         csv_filename = f"package-analysis-{index}.csv"
-        #         parquet_filename = f"package-analysis-{index}.parquet"
-        #         chunk_df.to_csv(Path(data_path).joinpath(csv_filename).as_posix(), index=False)
-        #         chunk_df.to_parquet(Path(data_path).joinpath(parquet_filename).as_posix(), index=False)
-        #         acc_rows = []
-        #     else:
-        #         continue
         chunk_df = results.to_dataframe()
         csv_filename = f"package-analysis-{chunk_number}.csv"
         parquet_filename = f"package-analysis-{chunk_number}.parquet"
