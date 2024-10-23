@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 from tqdm import tqdm
 import ast
+import re
 
 global ecosystem
 
@@ -57,6 +58,9 @@ def pkg_label_match(pkg_data_file, pkg_mal_file, save_path):
         if not match.empty:
             # label this package as malicious label --- 1
             pkg_df["Label"][index] = 1
+            print(f"!! matched one malicious package from bigquery: {ecosystem}, {name}, {version}")
+
+
     pkg_df.to_csv(save_path.joinpath("package-analysis-labels.csv"))
     print(pkg_df.Label.value_counts())
     return pkg_df
@@ -91,23 +95,25 @@ def pkg_bkc_match(pkg_data_file, bkc_data_file, save_path):
         if not match.empty:
             # label this package as malicious label --- 1
             pkg_df["Label"][index] = 1
+            print('11111')
+            print(f"!! matched one malicious package from bigquery: {ecosystem}, {name}, {version}")
+
     pkg_df.to_csv(save_path.joinpath("package-analysis-labels.csv"))
     print(pkg_df.Label.value_counts())
     return pkg_df
-    
 
-
-def feature_ext(pkg_data):
-    ''' extract features from package-analysis dataset
-    
-    '''
-    pass
-
+def extract_pack_and_ver(file_name):
+    # regular expression to match a filename with version --- current not support for mavencentral ecosystem
+    match_res = re.match(r"(.+)-([\d\.]+)\.(tar\.gz|zip|tgz|gem)$", file_name)
+    if match_res:
+        # return name, version, extension
+        return match_res.group(1), match_res.group(2), match_res.group(3)
+    return None, None, None
     
 
 def bkc_json_to_csv(bkc_folder, save_path):
-    ''' Traverse the given root directory and find all JSON files at leaf paths.
-    If there are no JSON files in a leaf path, identify the version, name, and ecosystem from parent directories.
+    ''' Traverse the given root directory and package names (.tgz, .jar, .zip, etc) at leaf paths,
+    and extract the package part and version part
     
     Parameters:
         - root_dir (Path): The root directory to start traversing from.
@@ -116,40 +122,26 @@ def bkc_json_to_csv(bkc_folder, save_path):
         - List of dict { version: '', name: '', ecosystem: ''}
         
     '''
+
+    # mapping dict from extension to ecosystem name
+    ext_eco_map = {
+        "tgz": "npm",
+        "zip": "packagist",
+        "tar.gz": "pypi",
+        "gem": "rubygems",
+    }
+
     bkc_dict_list = []
-    for dirpath in bkc_folder.rglob("*"):
-        if dirpath.is_dir():
-            json_files = list(dirpath.glob("*.json"))
-            parts = dirpath.parts
-            if json_files:
-                for json_file in json_files:
-                    try:
-                        json_info = load_json_file(json_file)
-                        if parts[-4] in ecosystem:
-                            bkc_dict_list.append(
-                                # for npm
-                                {"ecosystem": parts[-4],
-                                "name": json_info["name"],
-                                "version": json_info["version"]}
-                            )
-                        elif parts[-3] in ecosystem:
-                            bkc_dict_list.append(
-                                # for npm
-                                {"ecosystem": parts[-3],
-                                "name": json_info["name"],
-                                "version": json_info["version"]}
-                            )
-                    except Exception as e:
-                        print(e)
-                    finally:
-                        continue
-            else:
-                if parts[-3] in ecosystem:
-                    bkc_dict_list.append(
-                        {"ecosystem": parts[-3],
-                        "name": parts[-2],
-                        "version": parts[-1]}
-                        )
+    for file in bkc_folder.rglob("*"):
+        if file.is_file():
+            file_name = file.name
+            name, version, extension = extract_pack_and_ver(file_name)
+            if extension:
+                bkc_dict_list.append(
+                {"ecosystem": ext_eco_map[extension],
+                "name": name,
+                "version": version}
+                    )
 
     df = pd.DataFrame(bkc_dict_list)
     df.to_csv(save_path.joinpath("bkc_mal.csv"), index=False)
@@ -185,7 +177,7 @@ def mal_pkg_json_to_csv(mal_pkg_folder, save_path):
 if __name__ == "__main__":
     # define the mal_pkg_folder
     mal_pkg_folder = Path.cwd().parent.joinpath("data","malicious-packages","osv","malicious")
-    pkg_par_file = Path.cwd().parent.joinpath("data","package-analysis.parquet")
+    pkg_par_file = Path.cwd().parent.joinpath("data","package-analysis-bigquery","package-analysis.parquet")
     bkc_pkg_folder = Path.cwd().parent.joinpath("data","Backstabbers-Knife-Collection", "samples")
 
     # match labels
