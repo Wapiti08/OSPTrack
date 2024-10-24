@@ -10,6 +10,8 @@ import os
 import subprocess
 from pathlib import Path
 import logging
+from dotenv import load_dotenv
+
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s [%(levelname)s]: %(message)s',
@@ -22,7 +24,11 @@ file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(m
 file_handler.setFormatter(file_formatter)
 logger.addHandler(file_handler)
 
+# load environment
+load_dotenv()
 
+# load password
+sudo_pwd = os.getenv("SUDO")
 
 def pack_info_load(file_name):
     '''
@@ -47,7 +53,7 @@ def simu_live_cmd(script_path, eco, pack, version):
 
     try:
         # run the command
-        result = subprocess.run(command,shell=True, capture_output=True, text=True)
+        result = subprocess.run(command, input=f'{sudo_pwd}\n',shell=True, capture_output=True, text=True)
 
         if result.returncode == 0:
             logger.info(f"successfully analysed {eco}-{pack}-{version}")

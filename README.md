@@ -36,6 +36,8 @@ export GOOGLE_APPLICATION_CREDENTIALS="path/to/your/service-account-file.json"
     sudo apt-get install -y docker.io
     # start the docker service
     sudo systemctl start docker
+    # golang download
+    sudo apt-get install golang
 
     # direct running 
     # how to run local instance

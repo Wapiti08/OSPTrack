@@ -9,3 +9,4 @@ sentence-transformers==3.0.1
 pyarrow==17.0.0
 fastparquet==2024.5.0
 dask==2024.8.1
+python-dotenv==1.0.1
