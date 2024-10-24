@@ -24,24 +24,27 @@ export GOOGLE_APPLICATION_CREDENTIALS="path/to/your/service-account-file.json"
 ## Usage Record
 
 - [Package-Analysis](https://github.com/ossf/package-analysis)
-    - required environment
+    - required environment (Ubuntu and macOS)
     ```
+    # ------ Ubuntu ------ Recommended System to Run......
     # git
     sudo apt-get install git
     # docker
     sudo apt-get install docker.io
+
+    # ------ macOS -------
+    # docker desktop server
+    brew install --cask docker
+    # finish the configuration
+    open -a Docker
+
+    # direct running 
     # how to run local instance
     ## local instance
     scripts/run_analysis.sh -ecosystem pypi -package test -local /path/to/test.whl
     ## live instance
     scripts/run_analysis.sh -ecosystem pypi -package Django -version 4.1.3
     ```
-
-- testing samples:
-    - PYPI mindsdb <=23.7.3.1
-        - version 23.7.3.1 (malicious)
-        - version 23.7.4.0 (fixed)
-    - coa >2.0.2
 
 - findings：
     - Command (key)
@@ -57,7 +60,6 @@ export GOOGLE_APPLICATION_CREDENTIALS="path/to/your/service-account-file.json"
     - through the differential analysis:
         - command --- as the string features? --- machine learning
         - features ---- give weights ---- part of risky score
-        - 
 
 
 ## Running Instructions

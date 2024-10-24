@@ -49,7 +49,7 @@ def simu_live_cmd(script_path, eco, pack, version):
         # run the command
         result = subprocess.run(command,shell=True, capture_output=True, text=True)
 
-        if result:
+        if result.returncode == 0:
             logger.info(f"successfully analysed {eco}-{pack}-{version}")
         else:
             logger.info(f"failed to analyse {eco}-{pack}-{version}")
@@ -73,7 +73,9 @@ def simu_local_cmd(script_path, eco, pack, path):
         # run the command
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
 
-        if result:
+        if result.returncode == 0:
+            output = result.stdout
+            logger.info("Command Output:", output)
             logger.info(f"successfully analysed {eco}-{pack} at {path}")
         else:
             logger.info(f"failed to analyse {eco}-{pack} at {path}")
@@ -90,7 +92,7 @@ def simu_local_cmd(script_path, eco, pack, path):
 if __name__ == "__main__":
     # define the path to save simulated result
     data_path = Path.cwd().parent.joinpath("data","package-analysis-mal")
-
+    
     # set the enviroment variables for custom directories
     os.environ["RESULTS_DIR"] = data_path.joinpath("results").as_posix()
     os.environ["STATIC_RESULTS_DIR"] = data_path.joinpath("staticResults").as_posix()
