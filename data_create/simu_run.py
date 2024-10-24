@@ -11,6 +11,7 @@ import subprocess
 from pathlib import Path
 import logging
 from dotenv import load_dotenv
+import time
 
 
 logging.basicConfig(level=logging.DEBUG,
@@ -41,25 +42,41 @@ def pack_info_load(file_name):
 
 
 
-def simu_live_cmd(script_path, eco, pack, version):
+def simu_live_cmd(script_path, eco, pack, version, check_interval=10):
     ''' simulate the execution of package based on give name and version number
     
     '''
     if not isinstance(version, float):
-        command = f"sudo {script_path} -ecosystem {eco} -package {pack} -version {version}"
+        command = f"{script_path} -ecosystem {eco} -package {pack} -version {version}"
                 
     else:
-        command = f"sudo {script_path} -ecosystem {eco} -package {pack}"
+        command = f"{script_path} -ecosystem {eco} -package {pack}"
 
     try:
-        # run the command
-        result = subprocess.run(command, input=f'{sudo_pwd}\n',shell=True, capture_output=True, text=True)
+        if sudo_pwd:
+            # run the command
+            process = subprocess.Popen(command, shell=True, \
+                                    stdout=subprocess.PIPE, stderr = subprocess.PIPE, \
+                                    text=True)
+            
+            while True:
+                # check if the process has terminated
+                poll = process.poll()
 
-        if result.returncode == 0:
-            logger.info(f"successfully analysed {eco}-{pack}-{version}")
+                if poll is not None:
+                    stdout, stderr = process.communicate(f'{sudo_pwd}\n')
+                    if poll == 0:
+                        logger.info(f"successfully analysed {eco}-{pack}-{version}")
+                    else:
+                        logger.info(f"failed to analyse {eco}-{pack}-{version}")
+                    break
+                
+                # wait for a short interval before checking again
+                logger.info("process is still running...")
+                time.sleep(check_interval)
         else:
-            logger.info(f"failed to analyse {eco}-{pack}-{version}")
-    
+            logger.error("sudo password not set")
+        
     except subprocess.CalledProcessError as e:
         logger.info("Error:", e.stderr)
     
@@ -76,6 +93,7 @@ def simu_local_cmd(script_path, eco, pack, path):
     command = f"sudo {script_path} -ecosystem {eco} -package {pack} -local {path}"
 
     try:
+        
         # run the command
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
 
