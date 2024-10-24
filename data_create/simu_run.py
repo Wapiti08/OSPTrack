@@ -47,19 +47,21 @@ def simu_live_cmd(script_path, eco, pack, version):
 
     try:
         # run the command
-        result = subprocess.run(command,shell=True, check=True,capture_output=True, text=True)
+        result = subprocess.run(command,shell=True, capture_output=True, text=True)
 
         if result:
             logger.info(f"successfully analysed {eco}-{pack}-{version}")
         else:
-            logger.warn(f"failed to analyse {eco}-{pack}-{version}")
+            logger.info(f"failed to analyse {eco}-{pack}-{version}")
     
     except subprocess.CalledProcessError as e:
-        logger.warn("Error:", e.stderr)
+        logger.info("Error:", e.stderr)
     
     except FileNotFoundError as e:
-        logger.warn("File not foun: d", e)
+        logger.info("File not foun: d", e)
 
+    finally:
+        pass
 
 def simu_local_cmd(script_path, eco, pack, path):
     ''' simulate the execution of package based on local packages
@@ -69,20 +71,21 @@ def simu_local_cmd(script_path, eco, pack, path):
 
     try:
         # run the command
-        result = subprocess.run(command, shell=True, check=True,capture_output=True, text=True)
+        result = subprocess.run(command, shell=True, capture_output=True, text=True)
 
         if result:
             logger.info(f"successfully analysed {eco}-{pack} at {path}")
         else:
-            logger.warn(f"failed to analyse {eco}-{pack} at {path}")
+            logger.info(f"failed to analyse {eco}-{pack} at {path}")
 
     except subprocess.CalledProcessError as e:
-        logger.warn("Error:", e.stderr)
+        logger.info("Error:", e.stderr)
     
     except FileNotFoundError as e:
-        logger.warn("File not found:", e)
+        logger.info("File not found:", e)
 
-
+    finally:
+        pass
 
 if __name__ == "__main__":
     # define the path to save simulated result

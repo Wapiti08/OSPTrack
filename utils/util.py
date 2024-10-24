@@ -4,6 +4,8 @@
  # @ Description: Auxiliary functions
  '''
 from datetime import datetime
+import logging
+
 
 
 def ts_format(timestamp):

@@ -66,42 +66,6 @@ def pkg_label_match(pkg_data_file, pkg_mal_file, save_path):
     return pkg_df
 
 
-def pkg_bkc_match(pkg_data_file, bkc_data_file, save_path):
-    ''' match labels from BKC dataset
-    
-    '''
-    pkg_df = pd.read_parquet(pkg_data_file)
-    pkg_mal_df = pd.read_csv(bkc_data_file)
-
-    # add initial labels
-    pkg_df["Label"] = [0] * len(pkg_df)
-    
-    # get the package ecosystem, name --- string
-    pkg_info_list = pkg_df["Package"].to_list() 
-
-    for index, pkg_info in tqdm(enumerate(pkg_info_list), desc="matching labels", \
-                                     total=len(pkg_df)):
-        pkg_info = ast.literal_eval(pkg_info)
-        ecosystem = pkg_info["Ecosystem"]
-        version = pkg_info["Version"]
-        name = pkg_info["Name"]
-        
-        # check whether they match same row
-        match = pkg_mal_df[
-            (pkg_mal_df["name"] == name) & (pkg_mal_df["version"] == version) &
-            (pkg_mal_df["ecosystem"] == ecosystem)
-            ]
-        
-        if not match.empty:
-            # label this package as malicious label --- 1
-            pkg_df["Label"][index] = 1
-            print('11111')
-            print(f"!! matched one malicious package from bigquery: {ecosystem}, {name}, {version}")
-
-    pkg_df.to_csv(save_path.joinpath("package-analysis-labels.csv"))
-    print(pkg_df.Label.value_counts())
-    return pkg_df
-
 def extract_pack_and_ver(file_name):
     # regular expression to match a filename with version --- current not support for mavencentral ecosystem
     match_res = re.match(r"(.+)-([\d\.]+)\.(tar\.gz|zip|tgz|gem)$", file_name)

@@ -14,10 +14,10 @@ trigger analyzer based in multi-source information fusion
 
 
 ## Preparation
-’‘’
+```
 # download bigquery key from google cloud
 export GOOGLE_APPLICATION_CREDENTIALS="path/to/your/service-account-file.json"
-‘’‘
+```
 
 
 
@@ -25,7 +25,7 @@ export GOOGLE_APPLICATION_CREDENTIALS="path/to/your/service-account-file.json"
 
 - [Package-Analysis](https://github.com/ossf/package-analysis)
     - required environment
-    '''
+    ```
     # git
     sudo apt-get install git
     # docker
@@ -35,7 +35,7 @@ export GOOGLE_APPLICATION_CREDENTIALS="path/to/your/service-account-file.json"
     scripts/run_analysis.sh -ecosystem pypi -package test -local /path/to/test.whl
     ## live instance
     scripts/run_analysis.sh -ecosystem pypi -package Django -version 4.1.3
-    '''
+    ```
 
 - testing samples:
     - PYPI mindsdb <=23.7.3.1
@@ -61,7 +61,7 @@ export GOOGLE_APPLICATION_CREDENTIALS="path/to/your/service-account-file.json"
 
 
 ## Running Instructions
-'''
+```
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
-'''
+```
