@@ -1,16 +1,19 @@
-# trigger_analyzer
-trigger analyzer based in multi-source information fusion
-
+# OSPTrack
+labelled dataset for simulated package execution with package-analysis
 
 ## Modules
 
-- Dynamic grpah construction
+- data query
 
+- data match
 
-- Dynamic scoring
+- package simulation
 
+- data filtering
 
-- Multiple Detection Logics
+- feature extraction
+
+- graph representation
 
 
 ## Preparation
@@ -30,13 +33,9 @@ export GOOGLE_APPLICATION_CREDENTIALS="path/to/your/service-account-file.json"
     # git
     sudo apt-get install git
     # docker
-    sudo apt-get install docker.io
-
-    # ------ macOS -------
-    # docker desktop server
-    brew install --cask docker
-    # finish the configuration
-    open -a Docker
+    sudo apt-get install -y docker.io
+    # start the docker service
+    sudo systemctl start docker
 
     # direct running 
     # how to run local instance

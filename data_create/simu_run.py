@@ -40,10 +40,10 @@ def simu_live_cmd(script_path, eco, pack, version):
     
     '''
     if not isinstance(version, float):
-        command = f"sh {script_path} -ecosystem {eco} -package {pack} -version {version}"
+        command = f"sudo {script_path} -ecosystem {eco} -package {pack} -version {version}"
                 
     else:
-        command = f"sh {script_path} -ecosystem {eco} -package {pack}"
+        command = f"sudo {script_path} -ecosystem {eco} -package {pack}"
 
     try:
         # run the command
@@ -67,7 +67,7 @@ def simu_local_cmd(script_path, eco, pack, path):
     ''' simulate the execution of package based on local packages
     
     '''
-    command = f"sh {script_path} -ecosystem {eco} -package {pack} -local {path}"
+    command = f"sudo {script_path} -ecosystem {eco} -package {pack} -local {path}"
 
     try:
         # run the command
