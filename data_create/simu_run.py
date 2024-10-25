@@ -12,7 +12,7 @@ from pathlib import Path
 import logging
 from dotenv import load_dotenv
 import time
-
+from datetime import datetime
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s [%(levelname)s]: %(message)s',

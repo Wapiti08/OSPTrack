@@ -7,6 +7,19 @@ ANALYZED_PACKAGES_DIR=${ANALYZED_PACKAGES_DIR:-"/tmp/analyzedPackages"}
 LOGS_DIR=${LOGS_DIR:-"/tmp/dockertmp"}
 STRACE_LOGS_DIR=${STRACE_LOGS_DIR:-"/tmp/straceLogs"}
 
+
+# function to create directory if it doesn't exist
+function create_dir_if_not_exists {
+	local dir_path=$1
+	if [[ ! -d "$dir_path" ]]; then
+		mkdir -p "$dir_path"
+		echo "Directory created: $dir_path"
+	else
+		echo "Directory already exists: $dir_path"
+	fi
+}
+
+
 # for pretty printing
 LINE="-----------------------------------------"
 
@@ -220,12 +233,12 @@ fi
 
 sleep 1 # Allow time to read info above before executing
 
-mkdir -p "$RESULTS_DIR"
-mkdir -p "$STATIC_RESULTS_DIR"
-mkdir -p "$FILE_WRITE_RESULTS_DIR"
-mkdir -p "$ANALYZED_PACKAGES_DIR"
-mkdir -p "$LOGS_DIR"
-mkdir -p "$STRACE_LOGS_DIR"
+create_dir_if_not_exists "$RESULTS_DIR"
+create_dir_if_not_exists "$STATIC_RESULTS_DIR"
+create_dir_if_not_exists "$FILE_WRITE_RESULTS_DIR"
+create_dir_if_not_exists "$ANALYZED_PACKAGES_DIR"
+create_dir_if_not_exists "$LOGS_DIR"
+create_dir_if_not_exists "$STRACE_LOGS_DIR"
 
 docker "${DOCKER_OPTS[@]}" "${DOCKER_MOUNTS[@]}" "$ANALYSIS_IMAGE" "${ANALYSIS_ARGS[@]}"
 
@@ -242,45 +255,75 @@ echo $LINE
 		print_package_details
 		print_results_dirs
 
-		mkdir -p "$RESULTS_DIR"
 		# rename and move each type of result file with the prefix
-		
-		for file in "$RESULTS_DIR"/*; do
-			mv "$file" "$RESULTS_DIR/${RESULTS_PREFIX}-$(basename "$file")"
+		# Rename and move each type of result file with the prefix
+		for dir in "$RESULTS_DIR" "$STATIC_RESULTS_DIR" "$FILE_WRITE_RESULTS_DIR" "$ANALYZED_PACKAGES_DIR" "$LOGS_DIR" "$STRACE_LOGS_DIR"; do
+    			for file in "$dir"/*; do
+        			if [[ -e "$file" ]]; then
+            				filename=$(basename "$file")
+            				extension="${filename##*.}"
+            				new_name="$dir/${RESULTS_PREFIX}.${extension}"
+
+            				# Check if the new filename already exists
+            				if [[ -e "$new_name" ]]; then
+                				echo "Warning: $new_name already exists. Skipping rename for $file."
+            				else
+                				mv "$file" "$new_name"
+                				echo "Renamed $file to $new_name"
+            				fi
+        			fi
+    			done
 		done
 
-		for file in "$STATIC_RESULTS_DIR"/*; do
-			mv "$file" "$STATIC_RESULTS_DIR/${RESULTS_PREFIX}-$(basename "$file")"
-		done
 
-		for file in "$FILE_WRITE_RESULTS_DIR"/*; do
-			mv "$file" "$FILE_WRITE_RESULTS_DIR/${RESULTS_PREFIX}-$(basename "$file")"
-		done
+		#for file in "$RESULTS_DIR"/*; do
+		#	filename=$(basename "$file")
+		#	extension="${filename##*.}"
+		#	mv "$file" "$RESULTS_DIR/${RESULTS_PREFIX}.${extension}"
+		#done
 
-		for file in "$ANALYZED_PACKAGES_DIR"/*; do	
-			mv "$file" "$ANALYZED_PACKAGES_DIR/${RESULTS_PREFIX}-$(basename "$file")"
-		done
+		#for file in "$STATIC_RESULTS_DIR"/*; do
+		#	filename=$(basename "$file")
+		#	extension="${filename##*.}"
+		#	mv "$file" "$STATIC_RESULTS_DIR/${RESULTS_PREFIX}.${extension}"
+		#done
 
-		for file in "$LOGS_DIR"/*;do
-			mv "$file" "$LOGS_DIR/${RESULTS_PREFIX}-$(basename "$file")"
-		done
+		#for file in "$FILE_WRITE_RESULTS_DIR"/*; do
+		#	filename=$(basename "$file")
+		#	extension="${filename##*.}"
+		#	mv "$file" "$FILE_WRITE_RESULTS_DIR/${RESULTS_PREFIX}.${extension}"
+		#done
 
-		for file in "$STRACE_LOGS_DIR"/*;do
-			mv "$file" "$STRACE_LOGS_DIR/${RESULTS_PREFIX}-$(basename "$file")"
-		done
+		#for file in "$ANALYZED_PACKAGES_DIR"/*; do	
+		#	filename=$(basename "$file")
+		#	extension="${filename##*.}"
+		#	mv "$file" "$ANALYZED_PACKAGES_DIR/${RESULTS_PREFIX}.${extension}"
+		#done
 
-	else
-		echo "Analysis failed"
-		echo
-		echo "docker process exited with code $DOCKER_EXIT_CODE"
-		echo
-		print_package_details
-		rmdir --ignore-fail-on-non-empty "$RESULTS_DIR"
-		rmdir --ignore-fail-on-non-empty "$STATIC_RESULTS_DIR"
-		rmdir --ignore-fail-on-non-empty "$FILE_WRITE_RESULTS_DIR"
-		rmdir --ignore-fail-on-non-empty "$ANALYZED_PACKAGES_DIR"
-		rmdir --ignore-fail-on-non-empty "$LOGS_DIR"
-		rmdir --ignore-fail-on-non-empty "$STRACE_LOGS_DIR"
+		#for file in "$LOGS_DIR"/*;do
+		#	filename=$(basename "$file")
+		#	extension="${filename##*.}"
+		#	mv "$file" "$LOGS_DIR/${RESULTS_PREFIX}.${extension}"
+		#done
+
+		#for file in "$STRACE_LOGS_DIR"/*;do
+		#	filename=$(basename "$file")
+		#	extension="${filename##*.}"
+		#	mv "$file" "$STRACE_LOGS_DIR/${RESULTS_PREFIX}.${extension}"
+		#done
+
+#	else
+#		echo "Analysis failed"
+#		echo
+#		echo "docker process exited with code $DOCKER_EXIT_CODE"
+#		echo
+#		print_package_details
+#		rmdir --ignore-fail-on-non-empty "$RESULTS_DIR"
+#		rmdir --ignore-fail-on-non-empty "$STATIC_RESULTS_DIR"
+#		rmdir --ignore-fail-on-non-empty "$FILE_WRITE_RESULTS_DIR"
+#		rmdir --ignore-fail-on-non-empty "$ANALYZED_PACKAGES_DIR"
+#		rmdir --ignore-fail-on-non-empty "$LOGS_DIR"
+#		rmdir --ignore-fail-on-non-empty "$STRACE_LOGS_DIR"
 	fi
 
 echo $LINE
