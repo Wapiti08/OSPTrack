@@ -86,6 +86,20 @@ def simu_live_cmd(script_path, eco, pack, version, check_interval=10):
     finally:
         pass
 
+
+def get_log_folder(eco, pack, version, log_dir):
+    return Path(log_dir).joinpath(f"{eco}-{pack}-{version}*")
+
+
+def is_analyzed(eco, pack, version, log_dir):
+    ''' check if a folder exists for the given package
+
+    '''
+    folder_pattern = get_log_folder(eco, pack, version, log_dir)
+    return any(folder_pattern.parent.glob(folder_pattern.name))
+
+
+
 def simu_local_cmd(script_path, eco, pack, path):
     ''' simulate the execution of package based on local packages
     
@@ -137,5 +151,11 @@ if __name__ == "__main__":
 
     # run script to simulate
     for index, row in bkc_df.iterrows():
-        simu_live_cmd(script_path, row["ecosystem"].lower(), row["name"], row["version"])
+        eco, pack, version = row["ecosystem"].lower(), row["name"], row["version"]
+        # check whether this package has been analyzed
+        if is_analyzed(eco, pack, version, data_path.joinpath("logs")):
+            logger.info(f"skipping already analyzed package: {eco}-{pack}-{version}")
+            continue
+        # run simulation
+        simu_live_cmd(script_path, eco, pack, version)
 

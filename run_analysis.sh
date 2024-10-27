@@ -275,43 +275,6 @@ echo $LINE
     			done
 		done
 
-
-		#for file in "$RESULTS_DIR"/*; do
-		#	filename=$(basename "$file")
-		#	extension="${filename##*.}"
-		#	mv "$file" "$RESULTS_DIR/${RESULTS_PREFIX}.${extension}"
-		#done
-
-		#for file in "$STATIC_RESULTS_DIR"/*; do
-		#	filename=$(basename "$file")
-		#	extension="${filename##*.}"
-		#	mv "$file" "$STATIC_RESULTS_DIR/${RESULTS_PREFIX}.${extension}"
-		#done
-
-		#for file in "$FILE_WRITE_RESULTS_DIR"/*; do
-		#	filename=$(basename "$file")
-		#	extension="${filename##*.}"
-		#	mv "$file" "$FILE_WRITE_RESULTS_DIR/${RESULTS_PREFIX}.${extension}"
-		#done
-
-		#for file in "$ANALYZED_PACKAGES_DIR"/*; do	
-		#	filename=$(basename "$file")
-		#	extension="${filename##*.}"
-		#	mv "$file" "$ANALYZED_PACKAGES_DIR/${RESULTS_PREFIX}.${extension}"
-		#done
-
-		#for file in "$LOGS_DIR"/*;do
-		#	filename=$(basename "$file")
-		#	extension="${filename##*.}"
-		#	mv "$file" "$LOGS_DIR/${RESULTS_PREFIX}.${extension}"
-		#done
-
-		#for file in "$STRACE_LOGS_DIR"/*;do
-		#	filename=$(basename "$file")
-		#	extension="${filename##*.}"
-		#	mv "$file" "$STRACE_LOGS_DIR/${RESULTS_PREFIX}.${extension}"
-		#done
-
 #	else
 #		echo "Analysis failed"
 #		echo
