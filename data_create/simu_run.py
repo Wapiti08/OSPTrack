@@ -13,6 +13,7 @@ import logging
 from dotenv import load_dotenv
 import time
 from datetime import datetime
+import threading
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s [%(levelname)s]: %(message)s',
@@ -42,7 +43,7 @@ def pack_info_load(file_name):
 
 
 
-def simu_live_cmd(script_path, eco, pack, version, check_interval=10):
+def simu_live_cmd(script_path, eco, pack, version, check_interval=5, timeout_duration=600):
     ''' simulate the execution of package based on give name and version number
     
     '''
@@ -59,6 +60,18 @@ def simu_live_cmd(script_path, eco, pack, version, check_interval=10):
                                     stdout=subprocess.PIPE, stderr = subprocess.PIPE, \
                                     text=True)
             
+            def terminate_process():
+                ''' function to terminate the process if it exceeds the timeout
+                
+                '''
+                if process.poll() is None:
+                    process.terminate()
+                    logger.warning(f"Process timed out for {eco}-{pack}-{version}")
+                    logger.info(f"Timeout occured while analysing {eco}-{pack}-{version}")
+
+            timer = threading.Timer(timeout_duration, terminate_process)
+            timer.start()
+
             while True:
                 # check if the process has terminated
                 poll = process.poll()
@@ -74,6 +87,9 @@ def simu_live_cmd(script_path, eco, pack, version, check_interval=10):
                 # wait for a short interval before checking again
                 logger.info("process is still running...")
                 time.sleep(check_interval)
+
+            # stop the timer if the process completes within the timeout
+            timer.cancel()
         else:
             logger.error("sudo password not set")
         
@@ -87,15 +103,15 @@ def simu_live_cmd(script_path, eco, pack, version, check_interval=10):
         pass
 
 
-def get_log_folder(eco, pack, version, log_dir):
-    return Path(log_dir).joinpath(f"{eco}-{pack}-{version}*")
+def get_result_file(eco, pack, version, result_dir):
+    return Path(result_dir).joinpath(f"{eco}-{pack}-{version}*")
 
 
-def is_analyzed(eco, pack, version, log_dir):
+def is_analyzed(eco, pack, version, result_dir):
     ''' check if a folder exists for the given package
 
     '''
-    folder_pattern = get_log_folder(eco, pack, version, log_dir)
+    folder_pattern = get_result_file(eco, pack, version, result_dir)
     return any(folder_pattern.parent.glob(folder_pattern.name))
 
 
@@ -153,7 +169,7 @@ if __name__ == "__main__":
     for index, row in bkc_df.iterrows():
         eco, pack, version = row["ecosystem"].lower(), row["name"], row["version"]
         # check whether this package has been analyzed
-        if is_analyzed(eco, pack, version, data_path.joinpath("logs")):
+        if is_analyzed(eco, pack, version, data_path.joinpath("results")):
             logger.info(f"skipping already analyzed package: {eco}-{pack}-{version}")
             continue
         # run simulation
