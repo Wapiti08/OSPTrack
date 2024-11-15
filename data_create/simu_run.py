@@ -159,14 +159,13 @@ if __name__ == "__main__":
     pkg_mal_file = Path.cwd().parent.joinpath("data", "pkg_mal.csv").as_posix()
     bkc_mal_file = Path.cwd().parent.joinpath("data", "bkc_mal.csv").as_posix()
 
-    bkc_df = pack_info_load(pkg_mal_file)
-    pkg_df = pack_info_load(bkc_mal_file)
+    pkg_df = pack_info_load(pkg_mal_file)
+    bkc_df = pack_info_load(bkc_mal_file)
 
     # define script path
     script_path = Path.cwd().parent.parent.joinpath("package-analysis", "scripts", "run_analysis.sh").as_posix()
-
     # run script to simulate
-    for index, row in bkc_df.iterrows():
+    for index, row in pkg_df[15000:].iterrows():
         eco, pack, version = row["ecosystem"].lower(), row["name"], row["version"]
         # check whether this package has been analyzed
         if is_analyzed(eco, pack, version, data_path.joinpath("results")):
