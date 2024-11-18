@@ -35,8 +35,7 @@ class JsonParser:
             for pack_key, value in json_file["Package"].items():
                 if pack_key not in feature_dict:
                     feature_dict[pack_key] = []
-                else:
-                    feature_dict[pack_key].append(value)
+                feature_dict[pack_key].append(value)
                 
             # extract feature from analysis key --- two separate parts: import and install
             ## define the necessary strings / values

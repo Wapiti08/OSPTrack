@@ -12,55 +12,68 @@ import re
 import base64
 import numpy as np
 
-# Custom encoder to handle numpy arrays
-class NumpyEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return super(NumpyEncoder, self).default(obj)
+class CsvParser:
+    def __init__(self, data_path: Path):
+        if data_path.suffix == "parquet":
+            self.csv_data = pd.read_parquet(data_path)
+        else:
+            raise f"the format of {data_path} is not supported"
 
+    def fea_ext(self,):
+        feature_dict = {}
 
-# Custom encoder to handle bytes
-class BytesEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, bytes):
-            return obj.decode('utf-8')
-        return super(BytesEncoder, self).default(obj)
-
-class CombinedEncoder(BytesEncoder, NumpyEncoder):
-    def default(self, obj):
-        # BytesEncoder will be checked first, then NdarrayEncoder
-        return super(CombinedEncoder, self).default(obj)
-
-class Featurer:
-    def __init__(self,):
-        pass
-
-    # Extract data
-    def extract_features(self, text):
-        print(text)
-        if isinstance(text, dict):
-            # extract the features
-            pass
+        # extract package info to columns
+        for pack_dict in self.csv_data["Package"]:
+            if pack_dict is None:
+                continue
+            
+            for key, value in pack_dict.items():
+                if key not in pack_dict:
+                    pack_dict[key] = []
     
-    def cmd_concat(self,):
-        pass
+                pack_dict[key].append(value if value is not None else "")
+            
+        # extract feature from analysis key --- two separate parts: import and install
+        ## define the necessary strings / values
+        nece_features = ["Files", "Sockets", "Commands", "DNS"]
         
-    
-    def decode_bytes(self,):
-        pass
+        for analysis_dict in self.csv_data["Analysis"]:
+            if analysis_dict is None:  # Skip if analysis_dict is None
+                continue
+            
+            for key, value in analysis_dict.items():
+                if key in ['import', 'install']:
+                    for feature in nece_features:
+                        new_key = key + '_' + feature
+                        if new_key not in feature_dict:
+                            feature_dict[new_key] = []
+                        
+                        # Check if key's value is not None before accessing .get()
+                        if value is not None:
+                            feature_dict[new_key].append(value.get(feature, ''))
+                        else:
+                            feature_dict[new_key].append('')
 
-    def ndarray_to_list(self,):
-        pass
+        feature_dict['label'] = self.csv_data['label'].to_list()
+
+        # make sure the length of value is the same
+        lengths = [len(v) for v in feature_dict.values()]
+        assert len(set(lengths)) == 1, f"Lengths of values are not the same: {lengths}"
+
+        return pd.DataFrame(feature_dict)
+
+    def pkl_save(self, file_name, df:pd.DataFrame):
+        ''' save to pickle file to make sure the original type is the same
+        
+        '''
+        df.to_pickle(file_name)
 
 
 if __name__ == "__main__":
 
     # define the pkg_folder
-    pkg_folder = Path.cwd().parent.joinpath("data", "package-analysis-bigquery", "package-analysis.parquet")
+    pkg_folder = Path.cwd().parent.joinpath("data", "package-analysis-labels.parquet")
     
-    df = pd.read_parquet(pkg_folder)
-    json_example = df['Analysis'][0]
-    featurer_ext = Featurer()
-    data = featurer_ext.extract_features(json_example)
-    print(data)
+    csvparser = CsvParser(pkg_folder)
+    csv_df = csvparser.fea_ext()
+    # csvparser.pkl_save()
