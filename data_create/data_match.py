@@ -63,7 +63,7 @@ def pkg_label_match(pkg_data_file, pkg_mal_file, save_path):
 
     pkg_df.to_csv(save_path.joinpath("package-analysis-labels.csv"))
     # save to pickle for further analysis
-    pkg_df.to_pickle(save_path.joinpath("package-analysis-labels.parquet"))
+    pkg_df.to_parquet(save_path.joinpath("package-analysis-labels.parquet"))
     return pkg_df
 
 

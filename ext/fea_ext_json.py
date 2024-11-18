@@ -16,47 +16,66 @@ class JsonParser:
     def create_data(self,):
         data = []
         for json_file in self.data_path.rglob('**/*.json'):
-            data.append(self.json_parse(json_file))
+            json_data = self.json_parse(json_file)
+            if json_data:
+                data.append(json_data)
         
         return data
 
     def json_parse(self, json_file):
         # check file extension
-        if self.json_file.suffix == 'json':
-            with self.json_file.open("r") as fr:
+        if json_file.suffix == '.json' and json_file.stat().st_size!=0:
+            with json_file.open("r") as fr:
                 data = json.load(fr)
+                return data
         else:
-            raise "the format of input file is not compatiable"
+            print(f"the format of input file {json_file} is not compatiable")
+            return None
         
     def fea_ext(self, data):
         feature_dict = {}
-        for json_file in data:
+        for json_data in data:
             # extract package info to columns
-            for pack_key, value in json_file["Package"].items():
+            for pack_key, value in json_data["Package"].items():
                 if pack_key not in feature_dict:
                     feature_dict[pack_key] = []
-                feature_dict[pack_key].append(value)
-                
+                feature_dict[pack_key].append(value if value is not None else '')
+
             # extract feature from analysis key --- two separate parts: import and install
             ## define the necessary strings / values
             nece_features = ["Files", "Sockets", "Commands", "DNS"]
             
-            for keys, _ in json_file["Analysis"]:
-                for key in keys:
+            # Check if "Analysis" is a dictionary before processing
+            required_keys = {'import', 'install'}
+            if isinstance(json_data.get("Analysis"), dict) and required_keys.issubset(json_data['Analysis'].keys()):
+                for key in ['import', 'install']:
                     for feature in nece_features:
                         new_key = key + '_' + feature
                         if new_key not in feature_dict:
                             feature_dict[new_key] = []
-                        else:
-                            feature_dict[new_key].append(json_file["Analysis"][key][feature])
-            # make sure the length of value is the same
-            lengths = [len(v) for v in feature_dict.values()]
-            assert len(set(lengths)) == 1, f"Lengths of values are not the same: {lengths}"
+                        
+                        # Check if the feature exists, otherwise append ''
+                        feature_value = json_data["Analysis"][key].get(feature, '')
+                        feature_dict[new_key].append(feature_value)
+
+            else:
+                feature_dict["import_Files"].append('')
+                feature_dict["import_Sockets"].append('')
+                feature_dict["import_Commands"].append('')
+                feature_dict["import_DNS"].append('')
+                feature_dict["install_Files"].append('')
+                feature_dict["install_Sockets"].append('')
+                feature_dict["install_Commands"].append('')
+                feature_dict["install_DNS"].append('')
+
+        # make sure the length of value is the same
+        lengths = [len(v) for v in feature_dict.values()]
+        assert len(set(lengths)) == 1, f"Lengths of values are not the same: {lengths}"
 
         return pd.DataFrame(feature_dict)
 
 
-    def label_create(self, df:pd.DataFrame, label:1):
+    def label_create(self, df:pd.DataFrame, label=1):
         ''' assign default malicious label: 1
         
         '''
@@ -71,18 +90,18 @@ class JsonParser:
         :param data_metric: the dataframe including known malicious package info
         '''
         # initialize sub_label column
-        df['sub_label'] = []
+        df['Sub_Label'] = len(df) * ['']
 
         # perform matching and update sub_label
         for _, metric in data_metric.iterrows():
             # match conditions
             match = (
-                df['ecosystem'].str.lower().str.startwith(metric['ecosystem'].lower()) &
-                (df['name'] == metric['name']) &
-                (df['version'] == metric['version'])
+                df['Ecosystem'].str.lower().str.startswith(metric['pkg_type'].lower()) &
+                (df['Name'] == metric['name']) &
+                (df['Version'] == metric['version'])
             )
             # to lower case and match the first part string
-            df.loc[match, 'sub_label'] = metric['attack_type']
+            df.loc[match, 'Sub_Label'] = metric['attack_type']
 
         return df
     

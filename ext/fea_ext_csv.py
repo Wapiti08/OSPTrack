@@ -14,10 +14,28 @@ import numpy as np
 
 class CsvParser:
     def __init__(self, data_path: Path):
-        if data_path.suffix == "parquet":
-            self.csv_data = pd.read_parquet(data_path)
+        if data_path.suffix == ".parquet":
+            self.csv_data = pd.read_parquet(data_path.as_posix())
         else:
             raise f"the format of {data_path} is not supported"
+
+    def parse_key_value(self, data, parent_key=''):
+        """
+        Recursively parse a nested key-value structure and return a flat dictionary.
+        """
+        parsed_data = {}
+        if isinstance(data, dict):
+            for key, value in data.items():
+                full_key = f"{parent_key}.{key}" if parent_key else key
+                parsed_data.update(self.parse_key_value(value, full_key))
+        elif isinstance(data, list):
+            for index, item in enumerate(data):
+                full_key = f"{parent_key}[{index}]"
+                parsed_data.update(self.parse_key_value(item, full_key))
+        else:
+            parsed_data[parent_key] = data
+        return parsed_data
+
 
     def fea_ext(self,):
         feature_dict = {}
@@ -26,12 +44,17 @@ class CsvParser:
         for pack_dict in self.csv_data["Package"]:
             if pack_dict is None:
                 continue
-            
+            try:
+                pack_dict = pack_dict.replace("'", '"')
+                pack_dict = json.loads(pack_dict)
+            except json.JSONDecodeError as e:
+                print(f"Error decoding JSON: {e}")
+
             for key, value in pack_dict.items():
-                if key not in pack_dict:
-                    pack_dict[key] = []
+                if key not in feature_dict:
+                    feature_dict[key] = []
     
-                pack_dict[key].append(value if value is not None else "")
+                feature_dict[key].append(value if value is not None else "")
             
         # extract feature from analysis key --- two separate parts: import and install
         ## define the necessary strings / values
@@ -41,6 +64,15 @@ class CsvParser:
             if analysis_dict is None:  # Skip if analysis_dict is None
                 continue
             
+            analysis_dict = analysis_dict.replace('b"', '"')
+
+            try:
+                analysis_dict = analysis_dict.replace("'", '"')
+                analysis_dict = self.parse_key_value(analysis_dict)
+                # analysis_dict = json.loads(analysis_dict)
+            except json.JSONDecodeError as e:
+                print(f"Error decoding JSON: {e}")
+
             for key, value in analysis_dict.items():
                 if key in ['import', 'install']:
                     for feature in nece_features:
@@ -53,8 +85,7 @@ class CsvParser:
                             feature_dict[new_key].append(value.get(feature, ''))
                         else:
                             feature_dict[new_key].append('')
-
-        feature_dict['label'] = self.csv_data['label'].to_list()
+        feature_dict['Label'] = self.csv_data['Label'].to_list()
 
         # make sure the length of value is the same
         lengths = [len(v) for v in feature_dict.values()]
