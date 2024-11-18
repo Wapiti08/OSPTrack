@@ -47,26 +47,34 @@ class JsonParser:
             
             # Check if "Analysis" is a dictionary before processing
             required_keys = {'import', 'install'}
-            if isinstance(json_data.get("Analysis"), dict) and required_keys.issubset(json_data['Analysis'].keys()):
+            if isinstance(json_data.get("Analysis"), dict):
+                for key in required_keys:
+                    # Only process the key if it exists in Analysis
+                    if key in json_data["Analysis"]:
+                        for feature in nece_features:
+                            new_key = key + '_' + feature
+                            if new_key not in feature_dict:
+                                feature_dict[new_key] = []
+                            
+                            # Append the feature value if exists, otherwise append ''
+                            feature_value = json_data["Analysis"][key].get(feature, '')
+                            feature_dict[new_key].append(feature_value)
+                    else:
+                        # If 'import' or 'install' is missing, ensure blank values for each feature
+                        for feature in nece_features:
+                            new_key = key + '_' + feature
+                            if new_key not in feature_dict:
+                                feature_dict[new_key] = []
+                            feature_dict[new_key].append('')
+
+            else:
+                # If "Analysis" is not a dictionary, append blank values for all keys
                 for key in ['import', 'install']:
                     for feature in nece_features:
                         new_key = key + '_' + feature
                         if new_key not in feature_dict:
                             feature_dict[new_key] = []
-                        
-                        # Check if the feature exists, otherwise append ''
-                        feature_value = json_data["Analysis"][key].get(feature, '')
-                        feature_dict[new_key].append(feature_value)
-
-            else:
-                feature_dict["import_Files"].append('')
-                feature_dict["import_Sockets"].append('')
-                feature_dict["import_Commands"].append('')
-                feature_dict["import_DNS"].append('')
-                feature_dict["install_Files"].append('')
-                feature_dict["install_Sockets"].append('')
-                feature_dict["install_Commands"].append('')
-                feature_dict["install_DNS"].append('')
+                        feature_dict[new_key].append('')
 
         # make sure the length of value is the same
         lengths = [len(v) for v in feature_dict.values()]
