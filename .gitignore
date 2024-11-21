@@ -4,3 +4,4 @@ session.json
 test/
 data_create/simu_run.log
 .env
+imgs/

@@ -1,0 +1,17 @@
+cff-version: 1.0.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Tan"
+  given-names: "Zhuoran"
+  orcid: "https://orcid.org/0000-0002-0809-0376"
+- family-names: "Anagnostopoulos"
+  given-names: "Christos"
+  orcid: "https://orcid.org/0000-0003-1517-6757"
+- family-names: "Singer"
+  given-names: "Jeremy"
+  orcid: "https://orcid.org/0000-0001-9462-6802"
+title: "Unified Semantic Log Parsing and Causal Graph Construction for Attack Attribution"
+version: 1.0.0
+doi: 10.5281/zenodo.13918585
+date-released: 2024-10-11
+url: "https://github.com/Wapiti08/UTLParser"

@@ -102,12 +102,16 @@ class JsonParser:
 
         # perform matching and update sub_label
         for _, metric in data_metric.iterrows():
+            
             # match conditions
             match = (
                 df['Ecosystem'].str.lower().str.startswith(metric['pkg_type'].lower()) &
-                (df['Name'] == metric['name']) &
-                (df['Version'] == metric['version'])
+                (df['Name'] == metric['name'])
             )
+
+            if pd.notna(metric['version']):
+                match &= (df['Version'] == metric['version'])
+
             # to lower case and match the first part string
             df.loc[match, 'Sub_Label'] = metric['attack_type']
 

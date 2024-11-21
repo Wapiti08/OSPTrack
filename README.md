@@ -1,70 +1,88 @@
 # OSPTrack
 labelled dataset for simulated package execution with package-analysis
 
-## Modules
+## Structure (core)
 
-- data query
+- ana:
 
-- data match
+    - stastical analysis for [BKC Dataset](https://dasfreak.github.io/Backstabbers-Knife-Collection/) and also [malicious-packages](https://github.com/ossf/malicious-packages/tree/main/osv/malicious)
 
-- package simulation
+    - the code to extract metrics.csv and iocs.csv files
+    
+    - label distribution analysis for labeled dataset
 
-- data filtering
+- data:
 
-- feature extraction
+    - collection from BKC and also malicious-packages
 
-- graph representation
+    - places to save bkc_mal.csv and pkg_mal.csv
+
+    - places to save extracted data also final labeled dataset
+
+- data_create:
+
+    - code to query BigQuery
+
+    - code to run simulation
+
+- ext:
+
+    - code to parse reports (json and csv) 
+    
+    - code to extract features and generate final dataset
+
+- run_analysis.sh:
+
+    custom shell script to run package-analysis to save results locally and avoid repetitions
 
 
-## Preparation
+## Preparation (Environment Setting Up)
+
+- For BigQuqry:
 ```
 # download bigquery key from google cloud
+# activate the key
 export GOOGLE_APPLICATION_CREDENTIALS="path/to/your/service-account-file.json"
+# the key needs to be loaded when querying BigQuery
+
 ```
 
+- For running [Package-Analysis](https://github.com/ossf/package-analysis) (only feasible on Ubuntu)
+
+```
+# git download
+sudo apt-get install git
+# docker
+sudo apt-get install -y docker.io
+# start the docker service
+sudo systemctl start docker
+# golang download
+sudo apt-get install golang
+
+# direct running --- check whether this tool works locally
+# how to run local instance
+## local instance
+scripts/run_analysis.sh -ecosystem pypi -package test -local /path/to/test.whl
+## live instance
+scripts/run_analysis.sh -ecosystem pypi -package Django -version 4.1.3
 
 
-## Usage Record
-
-- [Package-Analysis](https://github.com/ossf/package-analysis)
-    - required environment (Ubuntu and macOS)
-    ```
-    # ------ Ubuntu ------ Recommended System to Run......
-    # git
-    sudo apt-get install git
-    # docker
-    sudo apt-get install -y docker.io
-    # start the docker service
-    sudo systemctl start docker
-    # golang download
-    sudo apt-get install golang
-
-    # direct running 
-    # how to run local instance
-    ## local instance
-    scripts/run_analysis.sh -ecosystem pypi -package test -local /path/to/test.whl
-    ## live instance
-    scripts/run_analysis.sh -ecosystem pypi -package Django -version 4.1.3
-    ```
-
-- findings：
-    - Command (key)
-        - lsb, version, providers  --- check potential system type, version for suitable exploitation 
-    - DNS (key)
-        - hostname -- malicious or not
-        - types --- txt, cname, ptr etc ---- further logic check 
-
-- how to compare the differences
-    - diff file1, file2
-
-- ideas / thoughts:
-    - through the differential analysis:
-        - command --- as the string features? --- machine learning
-        - features ---- give weights ---- part of risky score
+## after successfully running one instance
+## replace the run_analysis.sh with the one provided in this resp --- give 755 
+```
 
 
 ## Running Instructions
+
 ```
+# virtual environment setting up
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
+
+## query data from BigQuery
+python3 data_bigquery.py
+
+# run simulation by calling package-analysis
+sudo python3 simu_run.py
+
 ```
