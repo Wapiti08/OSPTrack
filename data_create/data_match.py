@@ -28,7 +28,7 @@ def pkg_label_match(pkg_data_file, pkg_mal_file, save_path):
         structured with package (metadata), CreatedTimestamp, Analysis 
                         (dict type with both dynamic and static data)
     param pkg_mal_list: 
-        structured with json format, describing wiwth basic information in key-value
+        structured with json format, describing with basic information in key-value
     
     return: matching labels with malicious
     '''

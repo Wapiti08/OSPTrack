@@ -4,7 +4,7 @@ labelled dataset for simulated package execution with package-analysis
 
 ![Python](https://img.shields.io/badge/Python3-3.10-brightgreen.svg) 
 ![License](https://img.shields.io/badge/license-MIT3.0-green.svg)
-![Testing Environment](https://img.shields.io/badge/Ubuntu-22.04.5-LTS-golden.svg)
+![Testing Environment](https://img.shields.io/badge/Ubuntu-22.04.5-golden.svg)
 [![DOI](https://zenodo.org/badge/677001279.svg)](https://doi.org/10.5281/zenodo.14197321)
 
 
