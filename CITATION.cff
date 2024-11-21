@@ -1,4 +1,4 @@
-cff-version: 1.0.0
+cff-version: 1.0.0-beta
 message: "If you use this software, please cite it as below."
 authors:
 - family-names: "Tan"
@@ -10,8 +10,8 @@ authors:
 - family-names: "Singer"
   given-names: "Jeremy"
   orcid: "https://orcid.org/0000-0001-9462-6802"
-title: "Unified Semantic Log Parsing and Causal Graph Construction for Attack Attribution"
-version: 1.0.0
-doi: 10.5281/zenodo.13918585
-date-released: 2024-10-11
-url: "https://github.com/Wapiti08/UTLParser"
+title: "OSPtrack: A Labelled Dataset Targeting Simulated Open-Source Package Execution "
+version: 1.0.0-beta
+doi: 10.5281/zenodo.14197321
+date-released: 2024-11-21
+url: "https://github.com/Wapiti08/OSPTrack"
