@@ -1,6 +1,7 @@
 # OSPTrack
 labelled dataset for simulated package execution with package-analysis
 
+This work has been accepted at MSR 2025 Data and Tool Showcase Track, will present on 28th, April, 2025
 
 ![Python](https://img.shields.io/badge/Python3-3.10-brightgreen.svg) 
 ![License](https://img.shields.io/badge/license-MIT3.0-green.svg)
