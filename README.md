@@ -94,3 +94,49 @@ python3 data_bigquery.py
 sudo python3 simu_run.py
 
 ```
+
+## Replaying local Backstabber samples
+
+`data_create/simu_run.py` indexes archive files under
+`data/Backstabbers-Knife-Collection/samples` by ecosystem, normalized package
+name, and exact version. Its default `local-only` mode passes exact matches to
+package-analysis with `-local` and skips unmatched coordinates. The optional
+`local-first` mode falls back to the live registry. Maven/JCenter and NuGet are
+skipped because the package-analysis revision used here does not support them.
+
+Review the matches and commands without starting Docker:
+
+```bash
+python3 data_create/simu_run.py --mode local-only --dry-run --limit 100
+```
+
+Run only exact local matches (recommended for replacing unavailable registry
+packages):
+
+```bash
+sudo python3 data_create/simu_run.py --mode local-only
+```
+
+Prefer local matches but retain registry fallback:
+
+```bash
+sudo python3 data_create/simu_run.py --mode local-first
+```
+
+Useful controls are `--start-index`, `--limit`, `--timeout`, and `--rerun`.
+Use `--offline` to disable network access in the inner gVisor sandbox. Use
+`--fully-offline` only with `--mode local-only` and when both outer and nested
+container images have already been cached.
+
+The batch runner treats a prior result as complete only when its embedded
+package coordinate matches the requested package and at least one dynamic phase
+has status `completed`. This allows old registry-download failures to be
+replayed from BKC. Each attempted run is recorded in
+`data/package-analysis-mal/analysis_runs.csv`, including whether the source was
+`backstabbers` or `registry`.
+
+Malicious packages are mounted read-only into the trusted outer analysis image
+and executed only in package-analysis's nested gVisor container. Run this on a
+dedicated analysis host with no production credentials. Omitting `--offline`
+allows public-network egress from the sandbox (private ranges are firewalled) so
+that DNS/socket behavior can be captured; choose that tradeoff deliberately.
