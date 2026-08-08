@@ -72,10 +72,27 @@ function sanitize_result_component {
 	printf '%s' "$value"
 }
 
+function resolve_existing_file {
+	local input_path=$1
+	if [[ -z "$input_path" || ! -f "$input_path" || ! -r "$input_path" ]]; then
+		return 1
+	fi
+	local input_dir input_name resolved_dir
+	if [[ "$input_path" == */* ]]; then
+		input_dir=${input_path%/*}
+		input_name=${input_path##*/}
+	else
+		input_dir=.
+		input_name=$input_path
+	fi
+	resolved_dir=$(cd "$input_dir" 2>/dev/null && pwd -P) || return 1
+	printf '%s/%s' "$resolved_dir" "$input_name"
+}
+
 function create_stage_dir {
 	local output_dir=$1
 	local resolved_output
-	resolved_output=$(realpath "$output_dir" 2>/dev/null) || return 1
+	resolved_output=$(cd "$output_dir" 2>/dev/null && pwd -P) || return 1
 	if [[ -z "$resolved_output" || "$resolved_output" == "/" || ! -d "$resolved_output" ]]; then
 		echo "Refusing invalid staging parent: $output_dir" >&2
 		return 1
@@ -183,11 +200,11 @@ while [[ $i -lt $# ]]; do
 			# need to create a mount to pass the package archive to the docker image
 			LOCAL=1
 			i=$((i+1))
-			# Resolve an existing archive without GNU-specific realpath options.
-			PKG_PATH=$(realpath "${args[$i]}" 2>/dev/null)
+			# Resolve using shell builtins so minimal analysis hosts do not need realpath.
+			PKG_PATH=$(resolve_existing_file "${args[$i]}")
 			if [[ -z "$PKG_PATH" ]]; then
-				echo "-local must point to an existing package archive"
-				exit 255
+				echo "-local must point to an existing readable package archive: ${args[$i]}" >&2
+				exit 64
 			fi
 			PKG_FILE=$(basename "$PKG_PATH")
 			MOUNTED_PKG_PATH="/$PKG_FILE"

@@ -357,6 +357,11 @@ def run_analysis(
         LOGGER.debug("analysis stdout:\n%s", stdout[-8000:])
     if stderr:
         LOGGER.debug("analysis stderr:\n%s", stderr[-8000:])
+    if process.returncode != 0:
+        if stdout:
+            LOGGER.warning("failed analysis stdout (last 8000 chars):\n%s", stdout[-8000:])
+        if stderr:
+            LOGGER.warning("failed analysis stderr (last 8000 chars):\n%s", stderr[-8000:])
     return RunResult(tuple(command), process.returncode)
 
 
