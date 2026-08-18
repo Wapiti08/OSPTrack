@@ -1,12 +1,50 @@
 # OSPTrack
-labelled dataset for simulated package execution with package-analysis
+A labelled dataset for simulated package execution with package-analysis.
 
-**This work has been accepted at MSR 2025 Data and Tool Showcase Track, will present on 28th, April, 2025**
+**This work was presented at the MSR 2025 Data and Tool Showcase Track and is
+now published in the IEEE/ACM MSR 2025 proceedings (pp. 659--663). Read the
+[paper on IEEE Xplore](https://ieeexplore.ieee.org/document/11025755) or use
+[DOI 10.1109/MSR66628.2025.00102](https://doi.org/10.1109/MSR66628.2025.00102).**
 
 ![Python](https://img.shields.io/badge/Python3-3.10-brightgreen.svg) 
 ![License](https://img.shields.io/badge/license-MIT3.0-green.svg)
 ![Testing Environment](https://img.shields.io/badge/Ubuntu-22.04_x86__64-golden.svg)
 [![DOI](https://zenodo.org/badge/677001279.svg)](https://doi.org/10.5281/zenodo.21853840)
+
+
+## Dataset snapshots and statistics
+
+The snapshots should not be treated as interchangeable:
+
+| Snapshot | Date/scope | Total reports | Benign | Malicious |
+| --- | --- | ---: | ---: | ---: |
+| Published paper | OpenSSF reference data through November 2024 | 9,461 | 7,499 | 1,962 |
+| [Zenodo v4](https://doi.org/10.5281/zenodo.14680781) | Released 17 January 2025; historical source scope through November 2024 | 9,758 | 7,499 | 2,259 |
+| Current strict local-archive rebuild (`label_data_v2.csv`) | Rebuilt 8 August 2026 from archived samples | 9,652 | 7,500 | 2,152 |
+
+The August 2026 date is the **rebuild date**, not a claim that the source
+catalogue covers packages published through August 2026. The latest documented
+source/reference cutoff remains **November 2024**. The current rebuild only
+admits malicious coordinates backed by an exact local archive and contains
+2,152 malicious reports (22.30% of the dataset).
+
+For those 2,152 malicious reports, an event record is one item in any of the
+eight runtime feature lists (`Files`, `Sockets`, `Commands`, and `DNS` for both
+the import and install phases). Empty lists count as zero. Together, the
+malicious reports contain 8,698,912 observed event records: a mean of **4,042.25
+records per malicious report** and a median of **2,634.5**.
+
+| Event type | Mean records per malicious report (import + install) |
+| --- | ---: |
+| Files | 4,017.73 |
+| Sockets | 7.88 |
+| Commands | 15.89 |
+| DNS | 0.75 |
+| **All event types** | **4,042.25** |
+
+These are observed sandbox records, not counts of distinct malicious actions.
+Of the malicious reports, 829 completed both phases, 3 completed one phase, and
+1,320 ended with `error_analysis` after still producing usable trace evidence.
 
 
 ## Structure (core)
